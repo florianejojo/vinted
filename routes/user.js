@@ -43,20 +43,18 @@ router.post("/user/login", async (req, res) => {
     try {
         const { email, password } = req.fields;
         const currentUser = await User.findOne({ email });
-        let infoToClient = {};
-        console.log(currentUser);
-        // on va regarder si newhash correspond à celui enregistré
+
         const newHash = SHA256(currentUser.salt + password).toString(encBase64);
 
         if (newHash === currentUser.hash) {
-            infoToClient = currentUser;
-            console.log(infoToClient);
-            console.log(delete infoToClient.email);
-            delete infoToClient.token;
-            delete infoToClient.hash;
-            delete infoToClient.salt;
-            console.log(infoToClient);
-            res.status(200).json(infoToClient);
+            res.status(200).json({
+                id: currentUser.id,
+                token: currentUser.token,
+                account: {
+                    username: currentUser.account.username,
+                    phone: currentUser.account.phone,
+                },
+            });
         }
     } catch (error) {
         res.status(400).json({ message: error.message });
