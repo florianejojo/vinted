@@ -1,6 +1,9 @@
 // EXPRESS
 const express = require("express");
 
+//MONGOOSE
+const mongoose = require("mongoose");
+
 // CLOUDINARY
 const cloudinary = require("cloudinary").v2;
 
@@ -12,7 +15,7 @@ cloudinary.config({
 
 // MODELS
 const Offer = require("../models/Offer");
-
+const User = require("../models/User");
 // CHECK AUTH
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
@@ -38,6 +41,12 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
         );
         // const surl = imageData.secure_url;
         // console.log(imageData.secure_url);
+        // const user = await User.findById(req.user.id).populate("User");
+
+        // user.avatar = {};
+        // user.avatar.secure_url = imageData.secure_url;
+        // console.log(user);
+
         const newOffer = new Offer({
             product_name: title,
             product_description: description,
@@ -51,13 +60,14 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
             ],
             product_image: { secure_url: imageData.secure_url },
             owner: {
-                id: req.user.id,
+                account: {
+                    username: req.user.username,
+                    phone: req.user.phone,
+                    avatar: { secure_url: imageData.secure_url },
+                },
             },
         });
-        // console.log("params", req.fields);
-        // console.log("image path", req.files.picture.path);
-
-        // const newOffer = new Offer
+        // ne fonctionne pas car dans le model c'est déclaré différament snif
 
         res.status(200).json(newOffer);
     } catch (error) {
