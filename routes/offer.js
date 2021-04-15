@@ -106,5 +106,18 @@ router.get("/offers", async (req, res) => {
         res.status(400).json(error.message);
     }
 });
-//skip = page * limit
+
+router.get("/offer/:id", async (req, res) => {
+    try {
+        const offerToDisplay = await Offer.findById(req.params.id);
+        offerToDisplay.owner = await User.findById(offerToDisplay.owner).select(
+            "account"
+        );
+
+        res.status(200).json(offerToDisplay);
+    } catch (error) {
+        res.status(400).json(error.message);
+    }
+});
+
 module.exports = router;
