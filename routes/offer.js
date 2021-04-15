@@ -7,15 +7,16 @@ const mongoose = require("mongoose");
 // CLOUDINARY
 const cloudinary = require("cloudinary").v2;
 
-cloudinary.config({
-    cloud_name: "ddpnheodb",
-    api_key: "134252468392595",
-    api_secret: "a0TJ_cfs-11BhSmH2KKZc3J4X3w",
-});
+// cloudinary.config({
+//     cloud_name: "ddpnheodb",
+//     api_key: "134252468392595",
+//     api_secret: "a0TJ_cfs-11BhSmH2KKZc3J4X3w",
+// });
 
 // MODELS
 const Offer = require("../models/Offer");
 const User = require("../models/User");
+
 // CHECK AUTH
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
@@ -35,17 +36,6 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
             size,
             color,
         } = req.fields;
-        // let pictureToUpload = req.files.picture.path;
-        const imageData = await cloudinary.uploader.upload(
-            req.files.picture.path
-        );
-        // const surl = imageData.secure_url;
-        // console.log(imageData.secure_url);
-        // const user = await User.findById(req.user.id).populate("User");
-
-        // user.avatar = {};
-        // user.avatar.secure_url = imageData.secure_url;
-        // console.log(user);
 
         const newOffer = new Offer({
             product_name: title,
@@ -58,16 +48,18 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
                 { COULEUR: color },
                 { EMPLACEMENT: city },
             ],
-            product_image: { secure_url: imageData.secure_url },
-            owner: {
-                account: {
-                    username: req.user.username,
-                    phone: req.user.phone,
-                    avatar: { secure_url: imageData.secure_url },
-                },
-            },
+
+            owner: req.user,
         });
-        // ne fonctionne pas car dans le model c'est déclaré différament snif
+
+        const imageData = await cloudinary.uploader.upload(
+            req.files.picture.path,
+            {
+                folder: `/vinted/offer/${newOffer._id}`,
+            }
+        );
+        newOffer.product_image = { secure_url: imageData.secure_url };
+        await newOffer.save();
 
         res.status(200).json(newOffer);
     } catch (error) {
@@ -75,4 +67,44 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
     }
 });
 
+router.get("/offers", async (req, res) => {
+    try {
+        let { title, priceMin, priceMax, sort, page } = req.query;
+
+        let obj = {};
+        let results = [];
+        let asc_desc;
+        let limit = 2;
+
+        if (title) {
+            obj.product_name = new RegExp(title, "i");
+        }
+        if (priceMax || priceMin) {
+            if (!priceMax) priceMax = Infinity;
+            if (!priceMin) priceMin = 0;
+            obj.product_price = { $gte: priceMin, $lte: priceMax };
+        }
+        if (!page) {
+            page = 1;
+        }
+        if (sort === "price-desc" || sort === "price-asc") {
+            if (sort === "price-desc") asc_desc = -1;
+            if (sort === "price-asc") asc_desc = 1;
+            results = await Offer.find(obj)
+                .sort({
+                    product_price: asc_desc,
+                })
+                .skip(page * limit - limit)
+                .limit(limit);
+        } else {
+            results = await Offer.find(obj)
+                .skip(page * limit - limit)
+                .limit(limit);
+        }
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(400).json(error.message);
+    }
+});
+//skip = page * limit
 module.exports = router;

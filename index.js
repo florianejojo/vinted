@@ -12,14 +12,14 @@ mongoose.connect("mongodb://localhost/vinted", {
     useCreateIndex: true,
 });
 
-// // CLOUDINARY
-// const cloudinary = require("cloudinary").v2;
+// CLOUDINARY
+const cloudinary = require("cloudinary").v2;
 
-// cloudinary.config({
-//     cloud_name: "ddpnheodb",
-//     api_key: "134252468392595",
-//     api_secret: "a0TJ_cfs-11BhSmH2KKZc3J4X3w",
-// });
+cloudinary.config({
+    cloud_name: "ddpnheodb",
+    api_key: "134252468392595",
+    api_secret: "a0TJ_cfs-11BhSmH2KKZc3J4X3w",
+});
 
 // ROUTES
 const userRoutes = require("./routes/user");

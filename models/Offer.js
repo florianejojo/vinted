@@ -11,5 +11,4 @@ const Offer = mongoose.model("Offer", {
         ref: "User",
     },
 });
-
 module.exports = Offer;
