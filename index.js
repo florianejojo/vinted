@@ -4,8 +4,11 @@ require("dotenv").config();
 // EXPRESS & FORMIDABLE
 const express = require("express");
 const formidable = require("express-formidable");
+const cors = require("cors");
+
 const app = express();
 app.use(formidable());
+app.use(cors());
 
 // MONGOOSE
 const mongoose = require("mongoose");
@@ -25,8 +28,6 @@ cloudinary.config({
 });
 
 // CORS
-const cors = require("cors");
-app.use(cors());
 
 // ROUTES
 
