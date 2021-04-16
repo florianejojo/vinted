@@ -24,6 +24,10 @@ cloudinary.config({
     api_secret: process.env.API_SECRET,
 });
 
+// CORS
+const cors = require("cors");
+app.use(cors());
+
 // ROUTES
 const userRoutes = require("./routes/user");
 app.use(userRoutes);
