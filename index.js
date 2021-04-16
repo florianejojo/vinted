@@ -45,6 +45,6 @@ app.all("*", (req, res) => {
 });
 
 // PORTS
-app.listen(proecss.env.PORT, () => {
+app.listen(process.env.PORT, () => {
     console.log("Server started");
 });
