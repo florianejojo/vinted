@@ -96,7 +96,8 @@ router.get("/offers", async (req, res) => {
             .sort(obj_sort)
             .skip(Number(page) * limit - limit)
             .limit(limit)
-            .populate("owner", "account");
+            .populate("owner", "account")
+            .populate("product_image", "secure_url");
 
         count = await Offer.countDocuments(results);
 
