@@ -1,7 +1,7 @@
 // VAR ENV
 require("dotenv").config();
 
-// EXPRESS & FORMIDABLE
+// EXPRESS & FORMIDABLE & CORS
 const express = require("express");
 const formidable = require("express-formidable");
 const cors = require("cors");
@@ -26,8 +26,6 @@ cloudinary.config({
     api_key: process.env.API_KEY,
     api_secret: process.env.API_SECRET,
 });
-
-// CORS
 
 // ROUTES
 

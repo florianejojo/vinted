@@ -54,7 +54,7 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
         );
         // newOffer.product_image = { secure_url: imageData.secure_url };
         newOffer.product_image = imageData;
-        // await newOffer.save();
+        await newOffer.save();
 
         res.status(200).json(newOffer);
         // renvoyer qye secure_url dans imagedata
@@ -66,12 +66,12 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
 router.get("/offers", async (req, res) => {
     try {
         let { title, priceMin, priceMax, sort, page } = req.query;
-
         let obj = {};
         let obj_sort = {};
         let results = [];
         let asc_desc;
-        let limit = 10;
+        let limit = 4;
+        let count;
 
         if (title) {
             obj.product_name = new RegExp(title, "i");
@@ -84,24 +84,23 @@ router.get("/offers", async (req, res) => {
                 $lte: Number(priceMax),
             };
         }
-
         if (!page) {
             page = 1;
         }
-
         if (sort === "price-desc" || sort === "price-asc") {
             if (sort === "price-desc") asc_desc = -1;
             else if (sort === "price-asc") asc_desc = 1;
             obj_sort.product_price = asc_desc;
         }
-
         results = await Offer.find(obj)
             .sort(obj_sort)
             .skip(Number(page) * limit - limit)
             .limit(limit)
             .populate("owner", "account");
 
-        res.status(200).json(results);
+        count = await Offer.countDocuments(results);
+
+        res.status(200).json({ count, results });
     } catch (error) {
         res.status(400).json(error.message);
     }
