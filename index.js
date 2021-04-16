@@ -29,6 +29,11 @@ const cors = require("cors");
 app.use(cors());
 
 // ROUTES
+
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "Welcome to Vinted API by lereacteur !" });
+});
+
 const userRoutes = require("./routes/user");
 app.use(userRoutes);
 
