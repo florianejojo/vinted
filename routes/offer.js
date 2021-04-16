@@ -101,20 +101,6 @@ router.get("/offers", async (req, res) => {
             .limit(limit)
             .populate("owner", "account");
 
-        // if (sort === "price-desc" || sort === "price-asc") {
-        //     if (sort === "price-desc") asc_desc = -1;
-        //     if (sort === "price-asc") asc_desc = 1;
-        //     results = await Offer.find(obj)
-        //         .sort({
-        //             product_price: asc_desc,
-        //         })
-        //         .skip(Number(page) * limit - limit)
-        //         .limit(limit);
-        // } else {
-        //     results = await Offer.find(obj)
-        //         .skip(Number(page) * limit - limit)
-        //         .limit(limit);
-        // }
         res.status(200).json(results);
     } catch (error) {
         res.status(400).json(error.message);
