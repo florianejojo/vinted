@@ -1,3 +1,6 @@
+// VAR ENV
+require("dotenv").config();
+
 // EXPRESS & FORMIDABLE
 const express = require("express");
 const formidable = require("express-formidable");
@@ -6,7 +9,7 @@ app.use(formidable());
 
 // MONGOOSE
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost/vinted", {
+mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
@@ -16,9 +19,9 @@ mongoose.connect("mongodb://localhost/vinted", {
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
-    cloud_name: "ddpnheodb",
-    api_key: "134252468392595",
-    api_secret: "a0TJ_cfs-11BhSmH2KKZc3J4X3w",
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET,
 });
 
 // ROUTES
@@ -33,6 +36,6 @@ app.all("*", (req, res) => {
 });
 
 // PORTS
-app.listen(3000, () => {
+app.listen(proecss.env.PORT, () => {
     console.log("Server started");
 });

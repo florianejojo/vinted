@@ -7,12 +7,6 @@ const mongoose = require("mongoose");
 // CLOUDINARY
 const cloudinary = require("cloudinary").v2;
 
-// cloudinary.config({
-//     cloud_name: "ddpnheodb",
-//     api_key: "134252468392595",
-//     api_secret: "a0TJ_cfs-11BhSmH2KKZc3J4X3w",
-// });
-
 // MODELS
 const Offer = require("../models/Offer");
 const User = require("../models/User");
@@ -58,10 +52,12 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
                 folder: `/vinted/offer/${newOffer._id}`,
             }
         );
-        newOffer.product_image = { secure_url: imageData.secure_url };
-        await newOffer.save();
+        // newOffer.product_image = { secure_url: imageData.secure_url };
+        newOffer.product_image = imageData;
+        // await newOffer.save();
 
         res.status(200).json(newOffer);
+        // renvoyer qye secure_url dans imagedata
     } catch (error) {
         res.status(400).json(error.message);
     }
@@ -72,9 +68,10 @@ router.get("/offers", async (req, res) => {
         let { title, priceMin, priceMax, sort, page } = req.query;
 
         let obj = {};
+        let obj_sort = {};
         let results = [];
         let asc_desc;
-        let limit = 2;
+        let limit = 10;
 
         if (title) {
             obj.product_name = new RegExp(title, "i");
@@ -82,25 +79,42 @@ router.get("/offers", async (req, res) => {
         if (priceMax || priceMin) {
             if (!priceMax) priceMax = Infinity;
             if (!priceMin) priceMin = 0;
-            obj.product_price = { $gte: priceMin, $lte: priceMax };
+            obj.product_price = {
+                $gte: Number(priceMin),
+                $lte: Number(priceMax),
+            };
         }
+
         if (!page) {
             page = 1;
         }
+
         if (sort === "price-desc" || sort === "price-asc") {
             if (sort === "price-desc") asc_desc = -1;
-            if (sort === "price-asc") asc_desc = 1;
-            results = await Offer.find(obj)
-                .sort({
-                    product_price: asc_desc,
-                })
-                .skip(page * limit - limit)
-                .limit(limit);
-        } else {
-            results = await Offer.find(obj)
-                .skip(page * limit - limit)
-                .limit(limit);
+            else if (sort === "price-asc") asc_desc = 1;
+            obj_sort.product_price = asc_desc;
         }
+
+        results = await Offer.find(obj)
+            .sort(obj_sort)
+            .skip(Number(page) * limit - limit)
+            .limit(limit)
+            .populate("owner", "account");
+
+        // if (sort === "price-desc" || sort === "price-asc") {
+        //     if (sort === "price-desc") asc_desc = -1;
+        //     if (sort === "price-asc") asc_desc = 1;
+        //     results = await Offer.find(obj)
+        //         .sort({
+        //             product_price: asc_desc,
+        //         })
+        //         .skip(Number(page) * limit - limit)
+        //         .limit(limit);
+        // } else {
+        //     results = await Offer.find(obj)
+        //         .skip(Number(page) * limit - limit)
+        //         .limit(limit);
+        // }
         res.status(200).json(results);
     } catch (error) {
         res.status(400).json(error.message);
