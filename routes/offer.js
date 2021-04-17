@@ -1,9 +1,6 @@
 // EXPRESS
 const express = require("express");
 
-//MONGOOSE
-// const mongoose = require("mongoose");
-
 // CLOUDINARY
 const cloudinary = require("cloudinary").v2;
 
@@ -114,6 +111,7 @@ router.put("/offer/update", async (req, res) => {
     // "keyToModify": String, ("product_price" par exemple)
     // "newData" : Number or String (30 pour le price par exemple)
     // }
+    // voir comment updtae la photo : la supprimer puis re-upload
 
     try {
         const offer = await Offer.findById(req.fields.id);
@@ -136,7 +134,10 @@ router.delete("/offer/delete", async (req, res) => {
 
     try {
         const offer = await Offer.findById(req.fields.id);
+        // console.log(offer);
         if (offer) {
+            await cloudinary.uploader.destroy(offer.product_image.public_id);
+            await cloudinary.api.delete_folder(`/vinted/offer/${offer._id}`);
             await Offer.findByIdAndDelete(req.fields.id);
 
             res.status(200).json({

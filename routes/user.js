@@ -1,16 +1,34 @@
+// EXPRESS
 const express = require("express");
+
+// CLOUDINARY
+const cloudinary = require("cloudinary").v2;
+
+// MODELS
+const Offer = require("../models/Offer");
 const User = require("../models/User");
 
-const router = express.Router();
+// AUTH
 const uid2 = require("uid2");
 const SHA256 = require("crypto-js/sha256");
 const encBase64 = require("crypto-js/enc-base64");
 
+// ROUTER
+const router = express.Router();
+
+// ROUTES
 router.post("/user/signup", async (req, res) => {
+    // body envoyé = {
+    //     "email": "floriane@coucou.fr",
+    //     "username": "CoucouFloflo",
+    //     "phone": "063678216893",
+    //     "password": "coucou"
+    //     "avatar" : {photo}
+    //   }
+
     try {
         const { email, username, phone, password } = req.fields;
         const userExist = await User.findOne({ email: email });
-        // console.log(userExist);
 
         if (!userExist && username && password) {
             const salt = uid2(16);
@@ -27,6 +45,13 @@ router.post("/user/signup", async (req, res) => {
                 hash,
                 salt,
             });
+            console.log();
+            const avatar = await cloudinary.uploader.upload(
+                req.files.avatar.path,
+                {
+                    folder: `/vinted/user/${newUser._id}`,
+                }
+            );
 
             await newUser.save();
             console.log(newUser);
@@ -42,6 +67,12 @@ router.post("/user/signup", async (req, res) => {
 });
 
 router.post("/user/login", async (req, res) => {
+    // body envoyé =
+    //     {
+    //         "email": "brice@lereacteur.io",
+    //         "password": "azerty"
+    //       }
+
     try {
         const { email, password } = req.fields;
         const currentUser = await User.findOne({ email });
