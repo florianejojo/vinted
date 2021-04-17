@@ -2,7 +2,7 @@
 const express = require("express");
 
 //MONGOOSE
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 
 // CLOUDINARY
 const cloudinary = require("cloudinary").v2;
@@ -74,6 +74,7 @@ router.get("/offers", async (req, res) => {
         let count;
 
         if (title) {
+            console.log("ici");
             obj.product_name = new RegExp(title, "i");
         }
         if (priceMax || priceMin) {
@@ -92,16 +93,56 @@ router.get("/offers", async (req, res) => {
             else if (sort === "price-asc") asc_desc = 1;
             obj_sort.product_price = asc_desc;
         }
+        // console.log(obj);
         results = await Offer.find(obj)
             .sort(obj_sort)
             .skip(Number(page) * limit - limit)
             .limit(limit)
-            .populate("owner", "account")
-            .populate("product_image", "secure_url");
+            .populate("owner", "account");
 
         count = await Offer.countDocuments(results);
 
-        res.status(200).json({ count, results });
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(400).json(error.message);
+    }
+});
+
+router.put("/offer/update", async (req, res) => {
+    // body envoyé = {
+    // "id": "6079cdeb0eec8719e4cd85df",
+    // "keyToModify": String, ("product_price" par exemple)
+    // "newData" : Number or String (30 pour le price par exemple)
+    // }
+
+    try {
+        const offer = await Offer.findById(req.fields.id);
+        if (offer) {
+            offer[req.fields.keyToModify] = req.fields.newData;
+            await offer.save();
+            res.status(200).json(offer);
+        } else {
+            res.status(200).json("Wrong ID || No offer found");
+        }
+    } catch (error) {
+        res.status(400).json(error.message);
+    }
+});
+
+router.delete("/offer/delete", async (req, res) => {
+    // body envoyé = {
+    // "id": "6079cdeb0eec8719e4cd85df",
+    // }
+
+    try {
+        const offer = await Offer.findById(req.fields.id);
+        if (offer) {
+            await Offer.findByIdAndDelete(req.fields.id);
+
+            res.status(200).json({
+                message: "This offer has been deleted",
+            });
+        } else res.status(200).json("Wrong ID || No offer found");
     } catch (error) {
         res.status(400).json(error.message);
     }
