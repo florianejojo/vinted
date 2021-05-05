@@ -62,12 +62,11 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
 
 router.get("/offers", async (req, res) => {
     try {
-        let { title, priceMin, priceMax, sort, page } = req.query;
+        let { title, priceMin, priceMax, sort, page, limit } = req.query;
         let obj = {};
         let obj_sort = {};
         let results = [];
         let asc_desc;
-        // let limit = 4;
         let count;
 
         if (title) {
@@ -90,11 +89,18 @@ router.get("/offers", async (req, res) => {
             else if (sort === "price-asc") asc_desc = 1;
             obj_sort.product_price = asc_desc;
         }
-        // console.log(obj);
-        results = await Offer.find(obj)
-            .sort(obj_sort)
-            .skip(Number(page))
-            .populate("owner", "account");
+        if (!limit) {
+            results = await Offer.find(obj)
+                .sort(obj_sort)
+                .skip(Number(page))
+                .populate("owner", "account");
+        } else {
+            results = await Offer.find(obj)
+                .sort(obj_sort)
+                .skip(Number(page) * Number(limit) - Number(limit))
+                .limit(Number(limit))
+                .populate("owner", "account");
+        }
 
         count = await Offer.countDocuments(results);
 

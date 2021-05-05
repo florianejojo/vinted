@@ -52,9 +52,9 @@ router.post("/user/signup", async (req, res) => {
                     folder: `/vinted/user/${newUser._id}`,
                 }
             );
-
+            newUser.account.avatar = avatar;
             await newUser.save();
-            console.log(newUser);
+            // console.log(newUser);
             res.status(200).json("User added ");
         } else if (userExist) {
             res.status(200).json("User already exists");
