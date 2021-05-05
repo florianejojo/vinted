@@ -67,7 +67,7 @@ router.get("/offers", async (req, res) => {
         let obj_sort = {};
         let results = [];
         let asc_desc;
-        let limit = Infinity;
+        // let limit = 4;
         let count;
 
         if (title) {
@@ -93,8 +93,7 @@ router.get("/offers", async (req, res) => {
         // console.log(obj);
         results = await Offer.find(obj)
             .sort(obj_sort)
-            .skip(Number(page) * limit - limit)
-            .limit(limit)
+            .skip(Number(page))
             .populate("owner", "account");
 
         count = await Offer.countDocuments(results);
