@@ -30,7 +30,7 @@ cloudinary.config({
 // ROUTES
 
 app.get("/", (req, res) => {
-    res.status(200).json({ message: "Welcome to Vinted API by lereacteur !" });
+    res.status(200).json({ message: "Welcome to Vinted API by Floriane!" });
 });
 
 const userRoutes = require("./routes/user");
