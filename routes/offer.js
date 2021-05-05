@@ -67,7 +67,7 @@ router.get("/offers", async (req, res) => {
         let obj_sort = {};
         let results = [];
         let asc_desc;
-        let limit = 4;
+        let limit = Infinity;
         let count;
 
         if (title) {
