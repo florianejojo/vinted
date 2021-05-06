@@ -83,11 +83,14 @@ router.post("/user/login", async (req, res) => {
 
     try {
         const { email, password } = req.fields;
+        if (!email || !password) {
+            res.status(400).json("Wrong username or password");
+        }
         const currentUser = await User.findOne({ email });
-
         const newHash = SHA256(currentUser.salt + password).toString(encBase64);
-
-        if (newHash === currentUser.hash) {
+        if (newHash !== currentUser.hash) {
+            res.status(400).json("Wrong username or password");
+        } else {
             res.status(200).json({
                 id: currentUser.id,
                 token: currentUser.token,
