@@ -58,8 +58,12 @@ router.post("/user/signup", async (req, res) => {
             }
 
             await newUser.save();
-            // console.log(newUser);
-            res.status(200).json("User added ");
+            res.status(200).json({
+                _id: newUser._id,
+                token: newUser.token,
+                email: newUser.email,
+                account: newUser.account,
+            });
         } else if (userExist) {
             res.status(200).json("User already exists");
         } else if (!username || !password) {
