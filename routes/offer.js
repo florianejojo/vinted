@@ -147,7 +147,6 @@ router.delete("/offer/delete", async (req, res) => {
 
     try {
         const offer = await Offer.findById(req.fields.id);
-        // console.log(offer);
         if (offer) {
             await cloudinary.uploader.destroy(offer.product_image.public_id);
             await cloudinary.api.delete_folder(`/vinted/offer/${offer._id}`);

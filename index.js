@@ -27,10 +27,38 @@ cloudinary.config({
     api_secret: process.env.API_SECRET,
 });
 
+// STRIPE
+const stripe = require("stripe")(process.env.STRIPE_API_SECRET);
+
+// MODELS
+const Offer = require("./models/Offer");
+const User = require("./models/User");
+
 // ROUTES
 
 app.get("/", (req, res) => {
     res.status(200).json({ message: "Welcome to Vinted API by Floriane!" });
+});
+
+app.post("/payment", async (req, res) => {
+    // On récupère le token pour l'envoyer dans la transaction
+    const { stripeToken, itemId } = req.fields;
+
+    // On recherche l'annonce dans la DB: infos à jour
+    const offer = await Offer.findById(itemId);
+
+    // Requete stripe pour transaction
+    const response = await stripe.charges.create({
+        amount: offer.product_price * 100,
+        currency: "eur",
+        description: offer.product_description,
+        source: stripeToken,
+    });
+
+    // TODO
+    // Sauvegarder la transaction dans une BDD MongoDB
+
+    res.json(response);
 });
 
 const userRoutes = require("./routes/user");
