@@ -94,10 +94,7 @@ router.post("/user/login", async (req, res) => {
             res.status(200).json({
                 id: currentUser.id,
                 token: currentUser.token,
-                account: {
-                    username: currentUser.account.username,
-                    phone: currentUser.account.phone,
-                },
+                account: currentUser.account,
             });
         }
     } catch (error) {

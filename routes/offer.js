@@ -27,35 +27,43 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
             size,
             color,
         } = req.fields;
+        // console.log(req.files.picture);
 
-        const newOffer = new Offer({
-            product_name: title,
-            product_description: description,
-            product_price: price,
-            product_details: [
-                { MARQUE: brand },
-                { TAILLE: size },
-                { ETAT: condition },
-                { COULEUR: color },
-                { EMPLACEMENT: city },
-            ],
+        if (!title || !price || isNaN(price) || !req.files.picture) {
+            // console.log(req.files.picture.path);
 
-            owner: req.user,
-        });
+            res.status(415).json(
+                "Price not a number || No picture uploaded || Element missing"
+            );
+        } else {
+            const newOffer = new Offer({
+                product_name: title,
+                product_description: description,
+                product_price: price,
+                product_details: [
+                    { MARQUE: brand },
+                    { TAILLE: size },
+                    { ETAT: condition },
+                    { COULEUR: color },
+                    { EMPLACEMENT: city },
+                ],
 
-        const imageData = await cloudinary.uploader.upload(
-            req.files.picture.path,
-            {
-                folder: `/vinted/offer/${newOffer._id}`,
-            }
-        );
-        // newOffer.product_image = { secure_url: imageData.secure_url };
-        newOffer.product_image = imageData;
-        await newOffer.save();
+                owner: req.user,
+            });
 
-        res.status(200).json(newOffer);
-        // renvoyer qye secure_url dans imagedata
+            const imageData = await cloudinary.uploader.upload(
+                req.files.picture.path,
+                {
+                    folder: `/vinted/offer/${newOffer._id}`,
+                }
+            );
+            newOffer.product_image = imageData;
+            await newOffer.save();
+
+            res.status(200).json(newOffer);
+        }
     } catch (error) {
+        // res.status(400).json(error.message);
         res.status(400).json(error.message);
     }
 });
